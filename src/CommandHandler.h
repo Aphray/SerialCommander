@@ -6,26 +6,25 @@
 
 #define STR_CMP_P(a, b) (strcmp_P(a, b) == 0)
 
-struct CommandCallback {
-    int8_t priority;
-    void (*function)(char*, ArgList*);
-};
-
-template<uint8_t MAX_CALLBACKS>
-struct Command {
-    PGM_P name;
-    uint8_t numCallbacks;
-    CommandCallback callbacks[MAX_CALLBACKS];
-};
 
 template<uint8_t MAX_COMMANDS = 10, uint8_t MAX_COMMAND_CALLBACKS = 3, uint8_t RX_BUFFER_SIZE = 64>
 class CommandHandler {
 
-    #define COMMAND Command<MAX_COMMAND_CALLBACKS>
-
     private:
+        struct CommandCallback {
+            int8_t priority;
+            void (*function)(char*, ArgList*);
+        };
+
+        struct Command {
+            PGM_P name;
+            uint8_t numCallbacks;
+            CommandCallback callbacks[MAX_COMMAND_CALLBACKS];
+        };
+
+
         uint8_t numCommands;
-        COMMAND commands[MAX_COMMANDS];
+        Command commands[MAX_COMMANDS];
 
         const char argDelimiter;
         const char cmdDelimiter;
@@ -36,7 +35,7 @@ class CommandHandler {
 
         MessageHandlerBase* messageHandler;
 
-        void addCommand(COMMAND* command, void (*function)(char*, ArgList*), int8_t priority) {
+        void addCommand(Command* command, void (*function)(char*, ArgList*), int8_t priority) {
             if (command->numCallbacks == MAX_COMMAND_CALLBACKS) {
                 messageHandler->printMessage("ERROR", "Max callbacks reached for <%s>", command->name);
                 return;
@@ -47,7 +46,7 @@ class CommandHandler {
             newCallback->function = function;
         }
 
-        void runCommand(COMMAND* command, ArgList* args) {
+        void runCommand(Command* command, ArgList* args) {
             for (CommandCallback callback: command->callbacks) {
                 callback.function(command->name, args);
             }
@@ -85,7 +84,7 @@ class CommandHandler {
             char* name = strtok(data, &cmdDelimiter);
             ArgList args(strtok(NULL, &cmdDelimiter));
 
-            for (COMMAND command: commands) {
+            for (Command command: commands) {
                 if (STR_CMP_P(command.name, name)) {
                     args.resetIndex();
                     runCommand(&command, &args);
@@ -110,7 +109,7 @@ class CommandHandler {
 
         void addCommandCallback(const __FlashStringHelper* name, void (*function)(char*, ArgList*), int8_t priority = 10) {
             PGM_P name_p = (PGM_P) name;
-            for (COMMAND command: commands) {
+            for (Command command: commands) {
                 if (STR_CMP_P(command.name, name_p)) {
                     addCommand(&command, function, priority);
                     return;
@@ -122,7 +121,7 @@ class CommandHandler {
                 return;
             }
 
-            COMMAND* newCommand = &(commands[numCommands++]);
+            Command* newCommand = &(commands[numCommands++]);
             newCommand->name = name_p;
             addCommand(newCommand, function, priority);
         }
