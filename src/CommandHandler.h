@@ -102,7 +102,7 @@ class CommandHandler {
         }
     
     public:
-        CommandHandler(const char argDelimiter, const char cmdDelimiter, const char cmdStart = 0, const char cmdEnd = '\n', MessageHandlerBase* messageHandler): 
+        CommandHandler( MessageHandlerBase* messageHandler, const char argDelimiter, const char cmdDelimiter, const char cmdStart = 0, const char cmdEnd = '\n',): 
             argDelimiter(argDelimiter), cmdDelimiter(cmdDelimiter), cmdStart(cmdStart), cmdEnd(cmdEnd) {
                 debugMode = false;
                 this->messageHandler = messageHandler;
