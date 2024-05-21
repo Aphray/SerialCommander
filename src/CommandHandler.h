@@ -91,7 +91,7 @@ class CommandHandler {
             ArgList args(strtok(NULL, &cmdDelimiter));
 
             for (Command command: commands) {
-                if (STR_CMP_P(command.name, name)) {
+                if (compareStr(command.name, name)) {
                     args.resetIndex();
                     runCommand(&command, &args);
                     return;
