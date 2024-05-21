@@ -135,4 +135,8 @@ class CommandHandler {
         void enableDebug() {
             debugMode = true;
         }
+
+        void process() {
+            pollSerial();
+        }
 };
