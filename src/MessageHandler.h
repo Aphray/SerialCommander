@@ -73,7 +73,9 @@ class MessageHandler: public MessageHandlerBase {
 
     public:
 
-        MessageHandler(): MessageHandlerBase() {}
+        MessageHandler(Stream* stream) {
+            serialStream = stream;
+        }
 
         void printMessage(const char* format, ...) {
             va_list args;
