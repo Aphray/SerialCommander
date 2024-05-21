@@ -4,13 +4,15 @@
 #include "MessageHandler.h"
 #include "ArgList.h"
 
-#define STR_CMP_P(a, b) (strcmp_P(a, b) == 0)
+
+#define MAKE_CALLBACK(fname) void fname(char* name, ArgList* args)
 
 
 template<uint8_t MAX_COMMANDS = 10, uint8_t MAX_COMMAND_CALLBACKS = 3, uint8_t RX_BUFFER_SIZE = 64>
 class CommandHandler {
 
     private:
+
         struct CommandCallback {
             int8_t priority;
             void (*function)(char*, ArgList*);
@@ -34,6 +36,10 @@ class CommandHandler {
         bool debugMode;
 
         MessageHandlerBase* messageHandler;
+
+        bool compareStr(const char* a, const char* b) {
+            return strcmp_P(a, b) == 0;
+        }
 
         void addCommand(Command* command, void (*function)(char*, ArgList*), int8_t priority) {
             if (command->numCallbacks == MAX_COMMAND_CALLBACKS) {
@@ -110,7 +116,7 @@ class CommandHandler {
         void addCommandCallback(const __FlashStringHelper* name, void (*function)(char*, ArgList*), int8_t priority = 10) {
             PGM_P name_p = (PGM_P) name;
             for (Command command: commands) {
-                if (STR_CMP_P(command.name, name_p)) {
+                if (compareStr(command.name, name_p)) {
                     addCommand(&command, function, priority);
                     return;
                 }
@@ -129,5 +135,4 @@ class CommandHandler {
         void enableDebug() {
             debugMode = true;
         }
-        
 };
