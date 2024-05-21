@@ -88,7 +88,7 @@ class CommandHandler {
             if (data[0] == 0) return;
 
             char* name = strtok(data, &cmdDelimiter);
-            ArgList args(strtok(NULL, &cmdDelimiter));
+            ArgList args(strtok(NULL, &cmdDelimiter), cmdDelimiter);
 
             for (Command command: commands) {
                 if (compareStr(command.name, name)) {
