@@ -19,7 +19,7 @@ class CommandHandler {
         };
 
         struct Command {
-            PGM_P name;
+            __FlashStringHelper* name;
             uint8_t numCallbacks;
             CommandCallback callbacks[MAX_COMMAND_CALLBACKS];
         };
@@ -61,30 +61,40 @@ class CommandHandler {
         void pollSerial() {
             static char rxBuffer[RX_BUFFER_SIZE];
             static char* ptr = rxBuffer;
-            static bool cmdStarted = (cmdStart == 0) ? true : false;
+            static bool started = (cmdStart == 0) ? true : false;
 
-            while (Serial.available() > 0) {
+            bool cleanup = false;
+
+            while (messageHandler->available() > 0) {
                 char rx = Serial.read();
 
                 if (rx == cmdStart) {
-                    if (cmdStarted) goto finish;
-                    cmdStarted = true;
+                    if (started) {
+                        cleanup = true;
+                        break;
+                    }
+                    started = true;
                 } else if (rx == cmdEnd) {
-                    if (cmdStarted) parseSerial(rxBuffer);
-                    goto finish;
+                    if (started) {
+                        *ptr = 0;
+                        parseSerial(rxBuffer);
+                    }
+                    cleanup = true;
                 } else if (rx != -1 && rx != '\r' && rx != '\n') {
                     *ptr++ = rx;
                 }
             }
 
-            finish:
+            if (cleanup) {
                 rxBuffer[0] = 0;
                 ptr = rxBuffer;
-                cmdStarted = (cmdStart == 0) ? true : false;
+                started = (cmdStart == 0) ? true : false;
+            }
         }
 
         void parseSerial(char* data) {
             // data is empty, nothing to do...
+
             if (data[0] == 0) return;
 
             char* name = strtok(data, &cmdDelimiter);
@@ -110,12 +120,14 @@ class CommandHandler {
 
         void addCommandCallback(const __FlashStringHelper* name, void (*function)(char*, ArgList*), int8_t priority = 10) {
             PGM_P name_p = (PGM_P) name;
+            Serial.println((char*) name);
             for (Command command: commands) {
                 if (compareStr(command.name, name_p)) {
                     addCommand(&command, function, priority);
                     return;
                 }
             }
+            Serial.println(name_p);
 
             if (numCommands == MAX_COMMANDS) {
                 messageHandler->printMessage("ERROR", "Max commands reached");
@@ -123,7 +135,7 @@ class CommandHandler {
             }
 
             Command* newCommand = &(commands[numCommands++]);
-            newCommand->name = name_p;
+            newCommand->name = name;
             addCommand(newCommand, function, priority);
         }
 

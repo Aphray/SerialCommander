@@ -35,6 +35,8 @@ class MessageHandlerBase {
         MessageHandlerBase() {}
 
     public:
+        virtual int available();
+
         virtual void printMessage(const char* format, ...);
         virtual void printMessage(const char* level, const char* format, ...);
 
@@ -72,6 +74,7 @@ class MessageHandler: public MessageHandlerBase {
         RingBuffer<Message, MESSAGE_QUEUE_SIZE> messageQueue;  
 
     public:
+        template<uint8_t, uint8_t, uint8_t> friend class CommandHandler;
 
         MessageHandler(Stream* stream) {
             serialStream = stream;
@@ -119,5 +122,9 @@ class MessageHandler: public MessageHandlerBase {
             va_end(args);
 
             messageQueue.put(message);
+        }
+
+        int available() {
+            return serialStream->available();
         }
 };
