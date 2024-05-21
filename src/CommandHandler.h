@@ -102,15 +102,10 @@ class CommandHandler {
         }
     
     public:
-        CommandHandler(const char argDelimiter, const char cmdDelimiter, const char cmdStart = 0, const char cmdEnd = '\n', MessageHandlerBase* messageHandler = NULL): 
+        CommandHandler(const char argDelimiter, const char cmdDelimiter, const char cmdStart = 0, const char cmdEnd = '\n', MessageHandlerBase* messageHandler): 
             argDelimiter(argDelimiter), cmdDelimiter(cmdDelimiter), cmdStart(cmdStart), cmdEnd(cmdEnd) {
                 debugMode = false;
-
-                if (messageHandler == NULL) {
-                    this->messageHandler = new MessageHandler<>;
-                } else {
-                    this->messageHandler = messageHandler;
-                }
+                this->messageHandler = messageHandler;
             };
 
         void addCommandCallback(const __FlashStringHelper* name, void (*function)(char*, ArgList*), int8_t priority = 10) {
