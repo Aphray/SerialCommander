@@ -2,24 +2,24 @@
 
 #include <Arduino.h>
 #include "MessageHandler.h"
-#include "ArgList.h"
+#include "CommandData.h"
 
 
-#define MAKE_CALLBACK(fname) void fname(char* name, ArgList* args)
+#define MAKE_CALLBACK(fname) void fname(char* name, CommandData* args)
 
 
-template<uint8_t CMD_NAME_MAX_LEN = 10, uint8_t MAX_CMDS = 10, uint8_t MAX_CMD_CBS = 3, uint8_t RX_BUF_SIZE = 64>
+template<uint8_t CMD_CHAR_MAX = 10, uint8_t MAX_CMDS = 10, uint8_t MAX_CMD_CBS = 3, uint8_t RX_BUF_SIZE = 64>
 class CommandHandler {
 
     private:
 
         struct CommandCallback {
             int8_t priority;
-            void (*function)(char*, ArgList*);
+            void (*function)(char*, CommandData*);
         };
 
         struct Command {
-            char name[CMD_NAME_MAX_LEN];
+            char name[CMD_CHAR_MAX + 1];
             uint8_t numCallbacks;
             CommandCallback callbacks[MAX_CMD_CBS];
         };
@@ -37,7 +37,7 @@ class CommandHandler {
 
         MessageHandlerBase* messageHandler;
 
-        void addCallback(Command* command, void (*function)(char*, ArgList*), int8_t priority) {
+        void addCallback(Command* command, void (*function)(char*, CommandData*), int8_t priority) {
             if (command->numCallbacks == MAX_CMD_CBS) {
                 messageHandler->printMessage("ERROR", "Max callbacks reached for <%s>", command->name);
                 return;
@@ -48,7 +48,7 @@ class CommandHandler {
             newCallback->function = function;
         }
 
-        void runCallbacks(Command* command, ArgList* args) {
+        void runCallbacks(Command* command, CommandData* args) {
             for (CommandCallback callback: command->callbacks) {
                 callback.function(command->name, args);
             }
@@ -94,7 +94,7 @@ class CommandHandler {
             if (data[0] == 0) return;
 
             char* name = strtok(data, &cmdDelimiter);
-            ArgList args(strtok(NULL, &cmdDelimiter), cmdDelimiter);
+            CommandData args(strtok(NULL, &cmdDelimiter), cmdDelimiter);
 
             for (Command command: commands) {
                 if (strcmp(command.name, name) == 0) {
@@ -115,13 +115,13 @@ class CommandHandler {
             };
 
 
-        void addCommandCallback(const __FlashStringHelper* name, void (*function)(char*, ArgList*)) {
-            char buf[CMD_NAME_MAX_LEN] = {0};
-            strncpy_P(buf, (PGM_P) name, CMD_NAME_MAX_LEN);
+        void addCommandCallback(const __FlashStringHelper* name, void (*function)(char*, CommandData*)) {
+            char buf[CMD_CHAR_MAX] = {0};
+            strncpy_P(buf, (PGM_P) name, CMD_CHAR_MAX);
 
         }
 
-        void addCommandCallback(const char* name, void (*function)(char*, ArgList*), int8_t priority = 10) {
+        void addCommandCallback(const char* name, void (*function)(char*, CommandData*), int8_t priority = 10) {
             for (Command command: commands) {
                 if (strcmp(command.name, name) == 0) {
                     addCallback(&command, function, priority);
@@ -138,7 +138,7 @@ class CommandHandler {
             Command* newCommand = &(commands[numCommands++]);
             // newCommand->name = name;
             newCommand->name[0] = 0;
-            strncpy(newCommand->name, name, CMD_NAME_MAX_LEN);
+            strncpy(newCommand->name, name, CMD_CHAR_MAX);
             addCallback(newCommand, function, priority);
         }
 
