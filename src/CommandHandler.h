@@ -19,7 +19,7 @@ class CommandHandler {
         };
 
         struct Command {
-            __FlashStringHelper* name;
+            char* name;
             uint8_t numCallbacks;
             CommandCallback callbacks[MAX_COMMAND_CALLBACKS];
         };
@@ -36,10 +36,6 @@ class CommandHandler {
         bool debugMode;
 
         MessageHandlerBase* messageHandler;
-
-        bool compareStr(const char* a, const char* b) {
-            return strcmp_P(a, b) == 0;
-        }
 
         void addCommand(Command* command, void (*function)(char*, ArgList*), int8_t priority) {
             if (command->numCallbacks == MAX_COMMAND_CALLBACKS) {
@@ -101,7 +97,7 @@ class CommandHandler {
             ArgList args(strtok(NULL, &cmdDelimiter), cmdDelimiter);
 
             for (Command command: commands) {
-                if (compareStr(command.name, name)) {
+                if (strcmp(command.name, name) == 0) {
                     args.resetIndex();
                     runCommand(&command, &args);
                     return;
@@ -118,16 +114,13 @@ class CommandHandler {
                 this->messageHandler = messageHandler;
             };
 
-        void addCommandCallback(const __FlashStringHelper* name, void (*function)(char*, ArgList*), int8_t priority = 10) {
-            PGM_P name_p = (PGM_P) name;
-            Serial.println((char*) name);
+        void addCommandCallback(const char* name, void (*function)(char*, ArgList*), int8_t priority = 10) {
             for (Command command: commands) {
-                if (compareStr(command.name, name_p)) {
+                if (strcmp(command.name, name) == 0) {
                     addCommand(&command, function, priority);
                     return;
                 }
             }
-            Serial.println(name_p);
 
             if (numCommands == MAX_COMMANDS) {
                 messageHandler->printMessage("ERROR", "Max commands reached");

@@ -1,4 +1,8 @@
 #include "ArgList.h"
+#include <stdlib.h>
+
+
+
 
 ArgList::ArgList(char* args, const char delimiter): delimiter(delimiter) {
     uint8_t n = 0;
@@ -28,4 +32,13 @@ Arg<int> ArgList::nextToInt() {
 
     Arg<int> ret {0, arg.error};
     if (ret.error) return ret;
+}
+
+Arg<float> ArgList::nextToFloat() {
+    Arg<char*> arg = next();
+}
+
+
+Arg<bool> ArgList::nextToBool() {
+    Arg<char*> arg = next();
 }

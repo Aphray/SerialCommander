@@ -2,34 +2,6 @@
 #include <Arduino.h>
 #include "RingBuffer.h"
 
-// class MessageBase {
-//     public:
-
-// };
-
-// template<uint8_t BUFFER_SIZE = 64>
-// class Message {
-//     private:
-//         char buffer[BUFFER_SIZE];
-    
-//     public:
-//         Message() {};
-
-//         void build(const char* format, va_list args) {
-//             vsnprintf(buffer, BUFFER_SIZE, format, args);
-//         }
-
-//         void build(const char* level, const char* format, va_list args) {
-//             snprintf(buffer, BUFFER_SIZE, "[%s] ", level);
-//             vsnprintf(buffer + strlen(buffer), BUFFER_SIZE, format, args);
-//         }
-
-//         void print(Stream* serial) {
-//             serial->println(buffer);
-//         }
-      
-// };
-
 class MessageHandlerBase {
     protected:
         MessageHandlerBase() {}
