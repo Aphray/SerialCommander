@@ -12,8 +12,8 @@ class MessageHandlerBase {
         virtual void printMessage(const char* format, ...);
         virtual void printMessage(const char* level, const char* format, ...);
 
-        virtual void queueMessage(const char* format, ...);
-        virtual void queueMessage(const char* level, const char* format, ...);
+        virtual bool queueMessage(const char* format, ...);
+        virtual bool queueMessage(const char* level, const char* format, ...);
 
 };
 
@@ -46,7 +46,7 @@ class MessageHandler: public MessageHandlerBase {
         RingBuffer<Message, MESSAGE_QUEUE_SIZE> messageQueue;  
 
     public:
-        template<uint8_t, uint8_t, uint8_t> friend class CommandHandler;
+        template<uint8_t, uint8_t, uint8_t, uint8_t> friend class CommandHandler;
 
         MessageHandler(Stream* stream) {
             serialStream = stream;
@@ -74,7 +74,7 @@ class MessageHandler: public MessageHandlerBase {
             message.print(serialStream);
         }
 
-        void queueMessage(const char* format, ...) {
+        bool queueMessage(const char* format, ...) {
             va_list args;
             Message message;
 
@@ -82,10 +82,10 @@ class MessageHandler: public MessageHandlerBase {
             message.build(format, args);
             va_end(args);
 
-            messageQueue.put(message);
+            return messageQueue.put(message);
         }
 
-        void queueMessage(const char* level, const char* format, ...) {
+        bool queueMessage(const char* level, const char* format, ...) {
             va_list args;
             Message message;
 
@@ -93,10 +93,17 @@ class MessageHandler: public MessageHandlerBase {
             message.build(level, format, args);
             va_end(args);
 
-            messageQueue.put(message);
+            return messageQueue.put(message);
         }
 
         int available() {
             return serialStream->available();
+        }
+
+        void processQueue() {
+            if (!messageQueue.isEmpty()) {
+                Message* msg = messageQueue.pop();
+                msg->print(serialStream);
+            }
         }
 };

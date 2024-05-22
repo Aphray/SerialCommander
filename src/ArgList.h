@@ -21,7 +21,7 @@ class ArgList {
         void resetIndex();
 
     public:
-        template<uint8_t, uint8_t, uint8_t> friend class CommandHandler;
+        template<uint8_t, uint8_t, uint8_t, uint8_t> friend class CommandHandler;
 
         Arg<char*> next();
         Arg<int> nextToInt();
