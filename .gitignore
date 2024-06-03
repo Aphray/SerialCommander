@@ -13,6 +13,6 @@
 # Built Visual Studio Code Extensions
 *.vsix
 
-platformio.ini
+# platformio.ini
 
-src/main.cpp
+# src/main.cpp
