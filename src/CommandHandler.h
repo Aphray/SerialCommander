@@ -4,6 +4,8 @@
 #include "MessageHandler.h"
 #include "CommandData.h"
 
+#include "Config.h"
+
 
 #define MAKE_CALLBACK(fname) void fname(char* name, CommandData* args)
 

@@ -28,7 +28,7 @@ bool _checkNumeric(char* str) {
 
 CommandData::CommandData(char* args, const char delimiter): delimiter(delimiter) {
 
-    error = NO_ERROR;
+    ErrorCode error = NO_ERROR;
 
     uint8_t n = 0;
     while (args[n] != 0) {
