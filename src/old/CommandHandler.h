@@ -9,6 +9,9 @@
 
 #define MAKE_CALLBACK(fname) void fname(char* name, CommandData* args)
 
+int foo() {
+    return RX_BUFFER_SIZE;
+}
 
 template<uint8_t CMD_CHAR_MAX = 10, uint8_t MAX_CMDS = 10, uint8_t MAX_CMD_CBS = 3, uint8_t RX_BUF_SIZE = 64>
 class CommandHandler {

@@ -3,33 +3,6 @@
 #include <Arduino.h>
 
 
-// template<typename T>
-// struct ArgBase {
-//     bool error;
-//     T value;
-// };
-
-// template<typename T>
-// struct Arg: ArgBase<T> {};
-
-// template<> 
-// struct Arg<char*>: ArgBase<char*> {
-//     Arg<int> toInt() {
-        
-//     }
-
-//     Arg<float> toFloat() {
-
-//     }
-
-//     Arg<bool> toBool() {
-
-//     }
-
-//     private:
-
-// };
-
 
 class CommandData {
     private:
@@ -43,6 +16,19 @@ class CommandData {
         void resetIndex();
 
         bool checkNumeric(char* str);
+
+        template <typename T>
+        int castNumeric(T (*fn)(const char*), T* ptr) {
+            char* buf = getNext();
+            if (buf == NULL) 
+                return NULL_ARG;
+            if (checkNumeric(buf)) 
+                *ptr = (*fn)(buf);
+            else
+                return CONVERSION_ERROR;
+
+            return NO_ERROR;
+        };
 
         char* getNext();
 
@@ -60,7 +46,7 @@ class CommandData {
 
         int getNext(char* ptr);
         int getNext(int* ptr);
-        int getNext(float* ptr);
+        int getNext(double* ptr);
         int getNext(long* ptr);
         int getNext(bool* ptr);
 };
